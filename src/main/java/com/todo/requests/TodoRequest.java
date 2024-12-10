@@ -7,28 +7,33 @@ import io.restassured.specification.RequestSpecification;
 import static io.restassured.RestAssured.given;
 
 public class TodoRequest extends Request implements CrudInterface<Todo> {
-    private static final String TODO_ENDPOINT = "/todos";
+    private static final String TODO_ENDPOINT = "/todos/";
 
     public TodoRequest(RequestSpecification reqSpec) {
         super(reqSpec);
     }
 
     @Override
-    public Response create(Todo entity) {
+    public Response create(Todo todo) {
         return given()
                 .spec(reqSpec)
-                .body(entity)
+                .body(todo)
                 .when()
                 .post(TODO_ENDPOINT);
     }
 
     @Override
-    public Object update(long id, Todo entity) {
-        return null;
+    public Response update(long id, Todo todo) {
+        return given()
+                .spec(reqSpec)
+                .body(todo)
+                .put(TODO_ENDPOINT + id);
     }
 
     @Override
-    public Object delete(long id) {
-        return null;
+    public Response delete(long id) {
+        return given()
+                .spec(reqSpec)
+                .delete(TODO_ENDPOINT + id);
     }
 }

@@ -1,0 +1,39 @@
+Index: src/main/java/com/todo/requests/TodoRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.todo.requests;\n\nimport com.todo.models.Todo;\nimport io.restassured.response.Response;\nimport io.restassured.specification.RequestSpecification;\n\nimport static io.restassured.RestAssured.given;\n\npublic class TodoRequest extends Request implements CrudInterface<Todo> {\n    private static final String TODO_ENDPOINT = \"/todos\";\n\n    public TodoRequest(RequestSpecification reqSpec) {\n        super(reqSpec);\n    }\n\n    @Override\n    public Response create(Todo entity) {\n        return given()\n                .spec(reqSpec)\n                .body(entity)\n                .when()\n                .post(TODO_ENDPOINT);\n    }\n\n    @Override\n    public Object update(long id, Todo entity) {\n        return null;\n    }\n\n    @Override\n    public Object delete(long id) {\n        return null;\n    }\n}\n
+===================================================================
+diff --git a/src/main/java/com/todo/requests/TodoRequest.java b/src/main/java/com/todo/requests/TodoRequest.java
+--- a/src/main/java/com/todo/requests/TodoRequest.java	(revision f5304ca1c11ea039248e6bfdf83c2f7f57acb420)
++++ b/src/main/java/com/todo/requests/TodoRequest.java	(date 1733840645439)
+@@ -7,7 +7,7 @@
+ import static io.restassured.RestAssured.given;
+ 
+ public class TodoRequest extends Request implements CrudInterface<Todo> {
+-    private static final String TODO_ENDPOINT = "/todos";
++    private static final String TODO_ENDPOINT = "/todos/";
+ 
+     public TodoRequest(RequestSpecification reqSpec) {
+         super(reqSpec);
+@@ -23,12 +23,17 @@
+     }
+ 
+     @Override
+-    public Object update(long id, Todo entity) {
+-        return null;
++    public Response update(long id, Todo entity) {
++        return given()
++                .spec(reqSpec)
++                .body(entity)
++                .put(TODO_ENDPOINT + id);
+     }
+ 
+     @Override
+-    public Object delete(long id) {
+-        return null;
++    public Response delete(long id) {
++        return given()
++                .spec(reqSpec)
++                .delete(TODO_ENDPOINT + id);
+     }
+ }

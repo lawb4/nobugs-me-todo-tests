@@ -3,6 +3,7 @@ package com.todo.post;
 import com.todo.BaseTest;
 import com.todo.models.Todo;
 import com.todo.requests.TodoRequest;
+import com.todo.requests.ValidatedTodoRequest;
 import com.todo.specs.RequestSpec;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.http.ContentType;
@@ -22,18 +23,13 @@ public class PostTodosTests extends BaseTest {
 
     @Test
     public void testCreateTodoWithValidData() {
+        ValidatedTodoRequest validatedAuthTodoRequest = new ValidatedTodoRequest(RequestSpec.authSpec());
+
         Todo newTodo = new Todo(1, "New Task", false);
 
         // Отправляем POST запрос для создания нового TODO
-        given()
-                .filter(new AllureRestAssured())
-                .contentType(ContentType.JSON)
-                .body(newTodo)
-                .when()
-                .post("/todos")
-                .then()
-                .statusCode(201)
-                .body(is(emptyOrNullString())); // Проверяем, что тело ответа пустое
+        validatedAuthTodoRequest.create(newTodo);
+
 
         // Проверяем, что TODO было успешно создано
         Todo[] todos = given()

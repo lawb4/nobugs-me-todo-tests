@@ -1,16 +1,18 @@
 package com.todo.put;
 
 import com.todo.BaseTest;
+import com.todo.models.Todo;
+import com.todo.requests.ValidatedTodoRequest;
+import com.todo.specs.RequestSpec;
 import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
 
-import com.todo.models.Todo;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class PutTodosTests extends BaseTest {
 
@@ -24,26 +26,15 @@ public class PutTodosTests extends BaseTest {
      */
     @Test
     public void testUpdateExistingTodoWithValidData() {
+        ValidatedTodoRequest validatedAuthTodoRequest = new ValidatedTodoRequest(RequestSpec.authSpec());
+
         // Создаем TODO для обновления
         Todo originalTodo = new Todo(1, "Original Task", false);
-        createTodo(originalTodo);
+        validatedAuthTodoRequest.create(originalTodo);
 
         // Обновленные данные
         Todo updatedTodo = new Todo(1, "Updated Task", true);
-
-        // Отправляем PUT запрос для обновления
-        given()
-                .filter(new ResponseLoggingFilter())
-                .contentType(ContentType.JSON)
-                .body(updatedTodo)
-                .when()
-                .put("/todos/" + updatedTodo.getId())
-                .then()
-                .statusCode(200);
-                //.contentType(ContentType.JSON)
-//                .body("id", equalTo(1))
-//                .body("text", equalTo("Updated Task"))
-//                .body("completed", equalTo(true));
+        validatedAuthTodoRequest.update(1, updatedTodo);
 
         // Проверяем, что данные были обновлены
         Todo[] todos = given()

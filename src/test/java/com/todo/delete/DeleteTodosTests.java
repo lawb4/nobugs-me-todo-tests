@@ -1,14 +1,15 @@
 package com.todo.delete;
 
 import com.todo.BaseTest;
-
+import com.todo.models.Todo;
+import com.todo.requests.ValidatedTodoRequest;
+import com.todo.specs.RequestSpec;
 import io.qameta.allure.restassured.AllureRestAssured;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
-import com.todo.models.Todo;
 
 public class DeleteTodosTests extends BaseTest {
 
@@ -22,21 +23,14 @@ public class DeleteTodosTests extends BaseTest {
      */
     @Test
     public void testDeleteExistingTodoWithValidAuth() {
+        ValidatedTodoRequest validatedAuthTodoRequest = new ValidatedTodoRequest(RequestSpec.authSpec());
+
         // Создаем TODO для удаления
         Todo todo = new Todo(1, "Task to Delete", false);
-        createTodo(todo);
+        validatedAuthTodoRequest.create(todo);
 
         // Отправляем DELETE запрос с корректной авторизацией
-        given()
-                .filter(new AllureRestAssured())
-                .auth()
-                .preemptive()
-                .basic("admin", "admin")
-                .when()
-                .delete("/todos/" + todo.getId())
-                .then()
-                .statusCode(204)
-                .body(is(emptyOrNullString())); // Проверяем, что тело ответа пустое
+        validatedAuthTodoRequest.delete(1);
 
         // Получаем список всех TODO и проверяем, что удаленная задача отсутствует
         Todo[] todos = given()

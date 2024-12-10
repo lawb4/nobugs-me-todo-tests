@@ -1,0 +1,49 @@
+Index: src/main/java/com/todo/requests/ValidatedTodoRequest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/todo/requests/ValidatedTodoRequest.java b/src/main/java/com/todo/requests/ValidatedTodoRequest.java
+new file mode 100644
+--- /dev/null	(date 1733840940188)
++++ b/src/main/java/com/todo/requests/ValidatedTodoRequest.java	(date 1733840940188)
+@@ -0,0 +1,39 @@
++package com.todo.requests;
++
++import com.todo.models.Todo;
++import io.restassured.specification.RequestSpecification;
++
++public class ValidatedTodoRequest extends Request implements CrudInterface<Todo> {
++    private final TodoRequest todoRequest = new TodoRequest(reqSpec);
++
++    public ValidatedTodoRequest(RequestSpecification reqSpec) {
++        super(reqSpec);
++    }
++
++    @Override
++    public Todo create(Todo entity) {
++        return todoRequest.create(entity)
++                .then()
++                .statusCode(201)
++                .extract()
++                .as(Todo.class);
++    }
++
++    @Override
++    public Object update(long id, Todo entity) {
++        return todoRequest.update(id, entity)
++                .then()
++                .statusCode(200)
++                .extract()
++                .as(Todo.class);
++    }
++
++    @Override
++    public Object delete(long id) {
++        return todoRequest.delete(id)
++                .then()
++                .statusCode(204)
++                .extract()
++                .as(Todo.class);
++    }
++}
