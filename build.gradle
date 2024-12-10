@@ -18,7 +18,7 @@ def restAssuredVersion = "5.5.0",
 
 
 dependencies {
-    testImplementation (
+    implementation (
             "io.rest-assured:rest-assured:$restAssuredVersion",
             "io.rest-assured:json-schema-validator:$restAssuredVersion",
             "io.qameta.allure:allure-rest-assured:$allureVersion",
