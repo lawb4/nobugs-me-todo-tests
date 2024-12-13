@@ -11,8 +11,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class PostTodosTests extends BaseTest {
 
@@ -30,15 +33,8 @@ public class PostTodosTests extends BaseTest {
         // Отправляем POST запрос для создания нового TODO
         validatedAuthTodoRequest.create(newTodo);
 
-
         // Проверяем, что TODO было успешно создано
-        Todo[] todos = given()
-                .when()
-                .get("/todos")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(Todo[].class);
+        List<Todo> todos = validatedAuthTodoRequest.readAll();
 
         // Ищем созданную задачу в списке
         boolean found = false;
@@ -58,6 +54,7 @@ public class PostTodosTests extends BaseTest {
      */
     @Test
     public void testCreateTodoWithMissingFields() {
+        // 241212 - Как я понимаю, это относится к контрактному тестированию, поэтому я пока не изменял этот тест
         // Создаем JSON без обязательного поля 'text'
         String invalidTodoJson = "{ \"id\": 2, \"completed\": true }";
 
@@ -78,29 +75,17 @@ public class PostTodosTests extends BaseTest {
      */
     @Test
     public void testCreateTodoWithMaxLengthText() {
+        ValidatedTodoRequest validatedAuthTodoRequest = new ValidatedTodoRequest(RequestSpec.authSpec());
+
         // Предполагаем, что максимальная длина поля 'text' составляет 255 символов
         String maxLengthText = "A".repeat(255);
         Todo newTodo = new Todo(3, maxLengthText, false);
 
         // Отправляем POST запрос для создания нового TODO
-        given()
-                .filter(new AllureRestAssured())
-                .contentType(ContentType.JSON)
-                .body(newTodo)
-                .when()
-                .post("/todos")
-                .then()
-                .statusCode(201)
-                .body(is(emptyOrNullString())); // Проверяем, что тело ответа пустое
+        validatedAuthTodoRequest.create(newTodo);
 
         // Проверяем, что TODO было успешно создано
-        Todo[] todos = given()
-                .when()
-                .get("/todos")
-                .then()
-                .statusCode(200)
-                .extract()
-                .as(Todo[].class);
+        List<Todo> todos = validatedAuthTodoRequest.readAll();
 
         // Ищем созданную задачу в списке
         boolean found = false;
@@ -120,14 +105,16 @@ public class PostTodosTests extends BaseTest {
      */
     @Test
     public void testCreateTodoWithInvalidDataTypes() {
+        // 241212 - Как я понимаю, это относится к контрактному тестированию, поэтому я пока не изменял этот тест
         // Поле 'completed' содержит строку вместо булевого значения
-        Todo newTodo = new Todo(3, "djjdjd", false);
+        String invalidTodoJson = "{ \"id\": 4, \"text\": \"Invalid Data Type\", \"completed\": \"notBoolean\" }";
 
-
-        TodoRequest todoRequest = new TodoRequest(RequestSpec.authSpec());
-
-
-        todoRequest.create(newTodo)
+        given()
+                .filter(new AllureRestAssured())
+                .contentType(ContentType.JSON)
+                .body(invalidTodoJson)
+                .when()
+                .post("/todos")
                 .then()
                 .statusCode(400)
                 .contentType(ContentType.TEXT)
@@ -141,21 +128,19 @@ public class PostTodosTests extends BaseTest {
     public void testCreateTodoWithExistingId() {
         // Сначала создаем TODO с id = 5
         Todo firstTodo = new Todo(5, "First Task", false);
-        createTodo(firstTodo);
+
+        //createTodo(firstTodo);
+        new ValidatedTodoRequest(RequestSpec.authSpec()).create(firstTodo);
 
         // Пытаемся создать другую TODO с тем же id
         Todo duplicateTodo = new Todo(5, "Duplicate Task", true);
 
-        given()
-                .filter(new AllureRestAssured())
-                .contentType(ContentType.JSON)
-                .body(duplicateTodo)
-                .when()
-                .post("/todos")
+        TodoRequest todoRequest = new TodoRequest(RequestSpec.authSpec());
+
+        todoRequest.create(duplicateTodo)
                 .then()
                 .statusCode(400) // Конфликт при дублировании 'id'
                 //.contentType(ContentType.TEXT)
                 .body(is(notNullValue())); // Проверяем, что есть сообщение об ошибке
     }
-
 }

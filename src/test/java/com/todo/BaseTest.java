@@ -1,6 +1,7 @@
 package com.todo;
 
 import io.restassured.RestAssured;
+import io.restassured.parsing.Parser;
 import org.junit.jupiter.api.BeforeAll;
 import com.todo.models.Todo;
 
@@ -9,6 +10,7 @@ import static io.restassured.RestAssured.given;
 public class BaseTest {
     @BeforeAll
     public static void setup() {
+        RestAssured.defaultParser = Parser.JSON;
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = 8080;
     }
