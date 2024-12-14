@@ -2,5 +2,6 @@ package com.todo.requests;
 
 public interface SearchInterface<T> {
     Object readAll();
-    Object readAll(int offset, int limit);
+    Object readAll(Integer offset, Integer limit);
+    Object readAll(Integer limit);
 }

@@ -51,8 +51,18 @@ public class ValidatedTodoRequest extends Request implements CrudInterface<Todo>
     }
 
     @Override
-    public List<Todo> readAll(int offset, int limit) {
+    public List<Todo> readAll(Integer offset, Integer limit) {
         Todo[] todos = todoRequest.readAll(offset, limit)
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .as(Todo[].class);
+        return List.of(todos);
+    }
+
+    @Override
+    public List<Todo> readAll(Integer limit) {
+        Todo[] todos = todoRequest.readAll(limit)
                 .then()
                 .statusCode(HttpStatus.SC_OK)
                 .extract()
