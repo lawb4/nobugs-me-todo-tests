@@ -10,6 +10,7 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.restassured.AllureRestAssured;
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -91,7 +92,7 @@ public class GetTodosTests extends BaseTest {
 
         todoRequest.readAll(-1, 2)
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .contentType("text/plain")
                 .body(containsString("Invalid query string"));
 
@@ -104,7 +105,7 @@ public class GetTodosTests extends BaseTest {
                 .when()
                 .get("/todos")
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .contentType("text/plain")
                 .body(containsString("Invalid query string"));
 
@@ -116,7 +117,7 @@ public class GetTodosTests extends BaseTest {
 
         todoRequest.readAll(null, 2)
                 .then()
-                .statusCode(400)
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .contentType("text/plain")
                 .body(containsString("Invalid query string"));
     }
